@@ -28,7 +28,7 @@ function createCanvas(element) {
   screen_svg.canvas.append("text")
     .styles({ "font-size": 2 * screen_size, "fill": "black", "font-family": "serif" })
     .attrs({ x: 0.5 * innerWidth, y: 4 * screen_size })
-    .text("Touchy Feely Vectors");
+    .text("Touchy Feely Complex Numbers");
 
   /*************************** Refresh Icon ***************************/
 
