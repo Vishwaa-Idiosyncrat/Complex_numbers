@@ -638,4 +638,12 @@ createVector.prototype.conjugate = function() {
   this.update();
 };
 
+createVector.prototype.flip_vector = function() {
+      // Flip vector_2's direction by adding π radians
+      this.angle_rad += Math.PI;
+      // Ensure angle stays within [0, 2π)
+      this.angle_rad %= (2 * Math.PI);
+      this.update();
+}
+
 

@@ -136,6 +136,34 @@ function createCanvas(element) {
     }
   });  
 
+
+  /*************************** Flip Button ***********************/ 
+
+  temp_pos = { x: 0.92 * innerWidth, y: 12 * screen_size };
+  screen_svg.canvas.append("image")
+    .attrs({ x: temp_pos.x - 0.5 * refresh_icon_size, y: temp_pos.y + 10 * refresh_icon_size, width: refresh_icon_size, height: refresh_icon_size, "xlink:href": "../../Images/negative-symbol.png" });
+
+  flip_icon = screen_svg.canvas.append("circle")
+    .styles({ "fill": "gray", "fill-opacity": 0, "stroke": "gray", "stroke-width": 0.2 * screen_size })
+    .attrs({ cx: temp_pos.x , cy: temp_pos.y + 10.5 * refresh_icon_size, r: 0.8 * refresh_icon_size });
+
+  flip_icon.on("touchstart", function () {
+    d3.select(this).styles({ "fill-opacity": 0.2, "stroke": "#555" });
+  })
+
+  flip_icon.on("touchend", function () {
+    d3.select(this).styles({ "fill-opacity": 0, "stroke": "gray" });
+  })
+
+  flip_icon.on("click", function() {
+    if (screen_svg.activeVector) {
+      screen_svg.activeVector.flip_vector();
+    } else {
+      console.log("No active vector selected");
+    }
+  });  
+
+
   /*************************** Footer ***************************/
 
   var temp_text = screen_svg.canvas.append("text")
