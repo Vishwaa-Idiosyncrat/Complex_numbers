@@ -100,6 +100,42 @@ function createCanvas(element) {
       window.open("https://youtu.be/RR1WX6o5hfM", "_default");
     })
 
+  /*************************** NEW: S–x axis Button (Conjugate) ***************************/
+  let conj_icon_size = 3 * screen_dpi;
+  // Position it below the help icon, for example
+  temp_pos = { x: 0.92 * innerWidth, y: 19 * screen_size };
+
+  // If you have a custom icon, reference it here. For now, let's assume "conjugate.svg"
+  screen_svg.canvas.append("image")
+    .attrs({
+      x: temp_pos.x - 0.5 * conj_icon_size,
+      y: temp_pos.y - 0.5 * conj_icon_size,
+      width: conj_icon_size,
+      height: conj_icon_size,
+      "xlink:href": "../../Images/conjugate.png"
+    });
+
+  let conj_icon_circle = screen_svg.canvas.append("circle")
+    .styles({ "fill": "gray", "fill-opacity": 0, "stroke": "gray", "stroke-width": 0.2 * screen_size })
+    .attrs({ cx: temp_pos.x, cy: temp_pos.y, r: 0.8 * conj_icon_size });
+
+  conj_icon_circle.on("touchstart", function() {
+    d3.select(this).styles({ "fill-opacity": 0.2, "stroke": "#555" });
+  });
+
+  conj_icon_circle.on("touchend", function() {
+    d3.select(this).styles({ "fill-opacity": 0, "stroke": "gray" });
+  });
+
+  // On click, call `conjugate()` for each vector
+  conj_icon_circle.on("click", function() {
+    if (screen_svg.activeVector) {
+      screen_svg.activeVector.conjugate();
+    } else {
+      console.log("No active vector selected");
+    }
+  });  
+
   /*************************** Footer ***************************/
 
   var temp_text = screen_svg.canvas.append("text")
@@ -149,7 +185,6 @@ function createCanvasEvents() {
           addition_resolution_allowed: true,
           addition_change_mode_allowed: true
         })
-
 
         // document.getElementById('beep').volume = 0;
         // document.getElementById('beep').play();
