@@ -141,7 +141,7 @@ function createCanvas(element) {
 
   temp_pos = { x: 0.92 * innerWidth, y: 12 * screen_size };
   screen_svg.canvas.append("image")
-    .attrs({ x: temp_pos.x - 0.5 * refresh_icon_size, y: temp_pos.y + 10 * refresh_icon_size, width: refresh_icon_size, height: refresh_icon_size, "xlink:href": "../../Images/negative-symbol.png" });
+    .attrs({ x: temp_pos.x - 0.5 * refresh_icon_size, y: temp_pos.y + 10 * refresh_icon_size, width: refresh_icon_size, height: refresh_icon_size, "xlink:href": "../../Images/equation.png" });
 
   flip_icon = screen_svg.canvas.append("circle")
     .styles({ "fill": "gray", "fill-opacity": 0, "stroke": "gray", "stroke-width": 0.2 * screen_size })
