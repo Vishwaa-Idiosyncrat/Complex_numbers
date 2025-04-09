@@ -22,9 +22,6 @@
     <script src="../Addition/createAdditionEvents.js"></script>
     <script src="../Addition/createAdditionActions.js"></script>
 
-    <script src="../Subtraction/subtraction.js"></script>
-    <script src="../Subtraction/createSubtractionActions.js"></script>
-    <script src="../Subtraction/createSubtractionEvents.js"></script>
 
     <script type="text/x-mathjax-config">
       MathJax.Hub.Config({ extensions: ["tex2jax.js"], jax: ["input/TeX","output/HTML-CSS"], tex2jax: { inlineMath: [["\\(","\\)"]] } });
@@ -59,26 +56,6 @@
       ga("send", "pageview");
     </script>
 
-    <button
-      id="flipVectorBtn"
-      style="
-        position: fixed;
-        bottom: 40px;
-        right: 20px;
-        padding: 10px;
-        font-size: 16px;
-      "
-      onclick="onFlipVector()"
-    >
-      Flip The second Number
-    </button>
-    <script>
-      function onFlipVector() {
-        if (window.currentAddition) {
-          window.currentAddition.flip_vector();
-        }
-      }
-    </script>
 
     <link rel="stylesheet" type="text/css" href="stylesheet.css" />
     <link

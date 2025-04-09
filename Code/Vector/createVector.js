@@ -638,12 +638,37 @@ createVector.prototype.conjugate = function() {
   this.update();
 };
 
-createVector.prototype.flip_vector = function() {
-      // Flip vector_2's direction by adding π radians
-      this.angle_rad += Math.PI;
-      // Ensure angle stays within [0, 2π)
-      this.angle_rad %= (2 * Math.PI);
-      this.update();
+createVector.prototype.dashed_representation = function(original_x, original_y){
+  this.vector_line_dotted = this.container.append("line").attr("class", "projection_" + this.vectorID);
+
+  this.vector_line_dotted.styles({
+    "stroke": this.vector_color,
+    "stroke-opacity": 0.6,
+    "stroke-width": 0.2 * screen_size,
+    "stroke-dasharray": "3,3"
+  });
+
+  this.vector_line_dotted.attrs({
+    x1: 0,
+    y1: 0,
+    x2: original_x,
+    y2: -original_y
+  });
 }
 
 
+createVector.prototype.flip_vector = function() {
+  // Store the current (pre-flip) values
+  const original_x = this.xComponent_length;
+  const original_y = this.yComponent_length;
+
+  // Flip the vector
+  this.angle_rad += Math.PI;
+  this.angle_rad %= (2 * Math.PI);
+
+  // Update the flipped vector visually
+  this.update();
+
+  // Now draw the dashed representation using the original components
+  this.dashed_representation(original_x, original_y);
+}
