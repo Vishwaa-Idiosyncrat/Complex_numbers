@@ -65,24 +65,6 @@ function createVector(data){
 
 /***********************************************************************************/
 
-/***********************************************************************************/
-/* Selection Management */
-
-// Add these methods to handle selection
-createVector.prototype.select = function() {
-  this.isSelected = true;
-  // Add visual indication of selection (e.g., thicker stroke)
-  this.vector_line.styles({"stroke-width": 0.6 * screen_size});
-};
-
-createVector.prototype.deselect = function() {
-  this.isSelected = false;
-  // Restore normal appearance
-  this.vector_line.styles({"stroke-width": 0.4 * screen_size});
-};
-
-/**********************************************************************************/
-
 createVector.prototype.create = function(){
   this.container = this.parent.canvas.append("g").classed("vector_g", true);
   this.circle = this.container.append("circle").data([this]);
@@ -706,24 +688,6 @@ createVector.prototype.dashed_representation = function(original_x, original_y) 
     });
 };
 
-
-// function flipSelectedVectors() {
-//   if (!screen_svg.selected_vectors || screen_svg.selected_vectors.length === 0) {
-//     console.log("No vectors selected for flipping.");
-//     return;
-//   }
-
-//   screen_svg.selected_vectors.forEach(vector => {
-//     vector.isFlipped = !vector.isFlipped;
-//     vector.angle_rad = vector.isFlipped ? vector.flippedAngle : vector.originalAngle;
-//     if (vector.updatePositionFromAngle) {
-//       vector.updatePositionFromAngle(); // Call this if your vector has it
-//     }
-//     console.log(`Vector ${vector.vectorID} flipped. Now isFlipped: ${vector.isFlipped}`);
-//   });
-// }
-
-
 /***********************************************************************************/
 /* Enhanced Flip with Animation and Selection Awareness */
 
@@ -775,6 +739,3 @@ createVector.prototype.flip_vector = function() {
   requestAnimationFrame(animateFlip);
 };
 
-// if multiple vectors are selected the last selected one is flipping and i don't want anyone to flip, if two vectors is selected and I am deselecting one, the deselected vector(which is last modified with respect to selection) fets flipped eventhough there is a selected vector. 
-// and when i deselect a vector even though there is only one vector and none of the vector is selected the vector gets flipped, so change the concept that the recent modified vectoe gets flipped. 
-// and see there are two vectors and one of them is selected now i select the other and deselect the other, the deselected vector is flipped as this was the last modified.

@@ -174,8 +174,7 @@ screen_svg.selection = {
 
   flip_icon.on("click", function() {
     // Get the active vector or fall back to checking all selections
-    const vectorToFlip = screen_svg.activeVector || 
-                        screen_svg.vector_list.find(v => v.isSelected);
+    const vectorToFlip = screen_svg.vector_list.find(v => v.isSelected);
     
     if (vectorToFlip) {
       console.log("Flipping vector", vectorToFlip.vectorID, 
@@ -199,6 +198,68 @@ screen_svg.selection = {
         .styles({"stroke": "gray"});
     }
   });
+
+//   // Add to createCanvas function initialization
+// screen_svg.lastInteractedVector = null;
+
+// // Update flip button handler
+// flip_icon.on("click", function() {
+//   // Get all truly selected vectors
+//   const selectedVectors = screen_svg.vector_list.filter(v => v.isSelected === true);
+  
+//   console.log("Flip clicked. Selected vectors:", 
+//     selectedVectors.map(v => v.vectorID),
+//     "Last interacted:", 
+//     screen_svg.lastInteractedVector ? screen_svg.lastInteractedVector.vectorID : null
+//   );
+
+//   // Case 1: Exactly one vector selected
+//   if (selectedVectors.length === 1) {
+//     selectedVectors[0].flip_vector();
+//     return;
+//   }
+  
+//   // Case 2: No vectors selected but there is a last interacted vector
+//   if (selectedVectors.length === 0 && screen_svg.lastInteractedVector) {
+//     console.warn("No selected vectors, but last interacted was vector", 
+//       screen_svg.lastInteractedVector.vectorID);
+    
+//     // Visual feedback - pulse the last interacted vector
+//     screen_svg.lastInteractedVector.vector_line
+//       .transition().duration(200)
+//       .styles({"stroke": "red"})
+//       .transition().duration(200)
+//       .styles({"stroke": screen_svg.lastInteractedVector.vector_color});
+    
+//     return;
+//   }
+  
+//   // Case 3: Multiple vectors selected
+//   if (selectedVectors.length > 1) {
+//     console.warn("Multiple vectors selected - please select only one to flip");
+    
+//     // Visual feedback - pulse all selected vectors
+//     selectedVectors.forEach(v => {
+//       v.vector_line
+//         .transition().duration(200)
+//         .styles({"stroke": "red"})
+//         .transition().duration(200)
+//         .styles({"stroke": v.vector_color});
+//     });
+    
+//     return;
+//   }
+  
+//   // Case 4: No vectors to flip
+//   console.warn("No vector selected - please select a vector first");
+  
+//   // Visual feedback on flip button
+//   d3.select(this)
+//     .transition().duration(200)
+//     .styles({"stroke": "red", "stroke-width": "2px"})
+//     .transition().duration(200)
+//     .styles({"stroke": "gray", "stroke-width": "0.2px"});
+// });
   
   /*************************** Footer ***************************/
 

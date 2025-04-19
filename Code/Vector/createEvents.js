@@ -44,7 +44,6 @@ this.vector_line.on("click", function() {
   d3.event.stopPropagation();
   d3.event.preventDefault();
   
-  // const wasSelected = self.isSelected;
   
   // If not holding Ctrl/Cmd, deselect all others first
   if (!d3.event.ctrlKey && !d3.event.metaKey) {
@@ -53,8 +52,6 @@ this.vector_line.on("click", function() {
     });
   }
   self.setSelected(!self.isSelected);
-  // Toggle this vector's selection
-  // self.setSelected(!wasSelected);
   
   // Update last interacted vector
   screen_svg.lastInteractedVector = self;
@@ -176,6 +173,7 @@ this.vector_line.on("click", function() {
   /*************************** Centre Circle Events ***************************/
   this.centre_control_circle.on("touchstart", function(d) {
     screen_svg.activeVector = d;
+    d.isSelected = !d.isSelected;
     d3.select(this).attr("class", "visible");
     if (d.manipulationMode === false) {
       this.timer = setTimeout(function() {
