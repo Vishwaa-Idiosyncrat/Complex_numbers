@@ -2,7 +2,6 @@
 /* createEvents.js */
 
 createVector.prototype.setSelected = function(state) {
-  // Only change if state is actually different
   if (this.isSelected !== state) {
     this.isSelected = state;
     this.vector_line.styles({
@@ -11,11 +10,22 @@ createVector.prototype.setSelected = function(state) {
     this.vector_head_circle.styles({
       "r": state ? 0.6 * screen_size : 0.4 * screen_size
     });
-    
+
+    if (state) {
+      // Add to selected list if not already there
+      if (!screen_svg.selected_vectors.includes(this)) {
+        screen_svg.selected_vectors.push(this);
+      }
+    } else {
+      // Remove from selected list
+      screen_svg.selected_vectors = screen_svg.selected_vectors.filter(v => v !== this);
+    }
+
     console.log(`Vector ${this.vectorID} selection set to: ${state}`);
   }
   return this;
 };
+
 
 createVector.prototype.createEvents = function() {
 
@@ -34,7 +44,7 @@ this.vector_line.on("click", function() {
   d3.event.stopPropagation();
   d3.event.preventDefault();
   
-  const wasSelected = self.isSelected;
+  // const wasSelected = self.isSelected;
   
   // If not holding Ctrl/Cmd, deselect all others first
   if (!d3.event.ctrlKey && !d3.event.metaKey) {
@@ -42,9 +52,9 @@ this.vector_line.on("click", function() {
       if (v !== self) v.setSelected(false);
     });
   }
-  
+  self.setSelected(!self.isSelected);
   // Toggle this vector's selection
-  self.setSelected(!wasSelected);
+  // self.setSelected(!wasSelected);
   
   // Update last interacted vector
   screen_svg.lastInteractedVector = self;

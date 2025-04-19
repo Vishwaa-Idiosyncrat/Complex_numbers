@@ -10,6 +10,7 @@ function createCanvas(element) {
   screen_svg.canvas = outer_div.append("svg").styles({ "width": "100%", "height": "100%" });
   screen_svg.vector_log = [];
   screen_svg.vector_list = [];
+  screen_svg.selected_vectors = []
   screen_svg.vectorID = -1;
   screen_svg.settings = { show_decimals: false };
 

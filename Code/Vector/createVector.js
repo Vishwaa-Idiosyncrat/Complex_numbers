@@ -17,7 +17,7 @@ function createVector(data){
   this.originalAngle = this.angle_rad;
   this.flippedAngle = this.angle_rad + Math.PI;
   this.flipAnimationDuration = 500; // ms
-  this.isSelected = false; // Track selection state
+  this.isSelected = false; 
 
 
   // Example of an array-based approach:
@@ -705,6 +705,23 @@ createVector.prototype.dashed_representation = function(original_x, original_y) 
       r: 0.4 * screen_size
     });
 };
+
+
+// function flipSelectedVectors() {
+//   if (!screen_svg.selected_vectors || screen_svg.selected_vectors.length === 0) {
+//     console.log("No vectors selected for flipping.");
+//     return;
+//   }
+
+//   screen_svg.selected_vectors.forEach(vector => {
+//     vector.isFlipped = !vector.isFlipped;
+//     vector.angle_rad = vector.isFlipped ? vector.flippedAngle : vector.originalAngle;
+//     if (vector.updatePositionFromAngle) {
+//       vector.updatePositionFromAngle(); // Call this if your vector has it
+//     }
+//     console.log(`Vector ${vector.vectorID} flipped. Now isFlipped: ${vector.isFlipped}`);
+//   });
+// }
 
 
 /***********************************************************************************/
