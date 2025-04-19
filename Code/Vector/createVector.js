@@ -11,6 +11,15 @@ function createVector(data){
   this.manipulationMode = false;
   this.manipulationActive = false;
   this.moving = false;
+
+  // New properties for flip functionality
+  this.isFlipped = false;
+  this.originalAngle = this.angle_rad;
+  this.flippedAngle = this.angle_rad + Math.PI;
+  this.flipAnimationDuration = 500; // ms
+  this.isSelected = false; // Track selection state
+
+
   // Example of an array-based approach:
   const complexSymbols = ["z", "w", "u", "v", "p", "q", "r", "s"];
   this.symbol = complexSymbols[data.vectorID] || "z";
@@ -55,6 +64,24 @@ function createVector(data){
 }
 
 /***********************************************************************************/
+
+/***********************************************************************************/
+/* Selection Management */
+
+// Add these methods to handle selection
+createVector.prototype.select = function() {
+  this.isSelected = true;
+  // Add visual indication of selection (e.g., thicker stroke)
+  this.vector_line.styles({"stroke-width": 0.6 * screen_size});
+};
+
+createVector.prototype.deselect = function() {
+  this.isSelected = false;
+  // Restore normal appearance
+  this.vector_line.styles({"stroke-width": 0.4 * screen_size});
+};
+
+/**********************************************************************************/
 
 createVector.prototype.create = function(){
   this.container = this.parent.canvas.append("g").classed("vector_g", true);
@@ -638,37 +665,99 @@ createVector.prototype.conjugate = function() {
   this.update();
 };
 
-createVector.prototype.dashed_representation = function(original_x, original_y){
-  this.vector_line_dotted = this.container.append("line").attr("class", "projection_" + this.vectorID);
+/***********************************************************************************/
+/* Enhanced Dashed Representation with Endpoint Circle */
 
-  this.vector_line_dotted.styles({
-    "stroke": this.vector_color,
-    "stroke-opacity": 0.6,
-    "stroke-width": 0.2 * screen_size,
-    "stroke-dasharray": "3,3"
-  });
+createVector.prototype.dashed_representation = function(original_x, original_y) {
+  // Remove any existing dashed representation
+  this.container.selectAll(".dashed-line-group").remove();
+  
+  // Create a group for the dashed elements
+  const dashedGroup = this.container.append("g").classed("dashed-line-group", true);
+  
+  // Create the dashed line
+  dashedGroup.append("line")
+    .attr("class", "projection_" + this.vectorID)
+    .styles({
+      "stroke": this.vector_color,
+      "stroke-opacity": 0.6,
+      "stroke-width": 0.2 * screen_size,
+      "stroke-dasharray": "3,3"
+    })
+    .attrs({
+      x1: 0,
+      y1: 0,
+      x2: original_x,
+      y2: -original_y
+    });
+  
+  // Add solid circle at endpoint
+  dashedGroup.append("circle")
+    .attr("class", "projection_" + this.vectorID)
+    .styles({
+      "stroke": "none",
+      "fill": this.vector_color,
+      "fill-opacity": 0.8
+    })
+    .attrs({
+      cx: original_x,
+      cy: -original_y,
+      r: 0.4 * screen_size
+    });
+};
 
-  this.vector_line_dotted.attrs({
-    x1: 0,
-    y1: 0,
-    x2: original_x,
-    y2: -original_y
-  });
-}
 
+/***********************************************************************************/
+/* Enhanced Flip with Animation and Selection Awareness */
 
 createVector.prototype.flip_vector = function() {
-  // Store the current (pre-flip) values
+  // Only proceed if this vector is selected or is the only vector
+  if (!this.isSelected && screen_svg.vector_log.filter(v => v.isSelected).length > 0) {
+    return;
+  }
+  
+  // Store current values for animation
+  const startAngle = this.angle_rad;
+  const endAngle = (this.angle_rad + Math.PI) % (2 * Math.PI);
   const original_x = this.xComponent_length;
   const original_y = this.yComponent_length;
+  
+  // Toggle flipped state
+  this.isFlipped = !this.isFlipped;
+  
+  // Create dashed representation of original position
+  if (!this.isFlipped) {
+    // If unflipping, remove the dashed line
+    this.container.selectAll(".dashed-line-group").remove();
+  } else {
+    this.dashed_representation(original_x, original_y);
+  }
+  
+  // Animate the flip
+  const startTime = Date.now();
+  const animateFlip = () => {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(elapsed / this.flipAnimationDuration, 1);
+    
+    // Ease-in-out animation
+    const easedProgress = 0.5 * (1 - Math.cos(progress * Math.PI));
+    
+    // Interpolate angle
+    this.angle_rad = startAngle + (endAngle - startAngle) * easedProgress;
+    
+    // Update the vector
+    this.update();
+    
+    // Continue animation if not complete
+    if (progress < 1) {
+      requestAnimationFrame(animateFlip);
+    }
+  };
+  
+  // Start animation
+  requestAnimationFrame(animateFlip);
+};
 
-  // Flip the vector
-  this.angle_rad += Math.PI;
-  this.angle_rad %= (2 * Math.PI);
-
-  // Update the flipped vector visually
-  this.update();
-
-  // Now draw the dashed representation using the original components
-  this.dashed_representation(original_x, original_y);
-}
+// if multiple vectors are selected the last selected one is flipping and i don't want anyone to flip, if two vectors is selected and I am deselecting one, the deselected vector(which is last modified with respect to selection) fets flipped eventhough there is a selected vector. 
+// and when i deselect a vector even though there is only one vector and none of the vector is selected the vector gets flipped, so change the concept that the recent modified vectoe gets flipped. 
+// and see there are two vectors and one of them is selected now i select the other and deselect the other, the deselected vector is flipped as this was the last modified.

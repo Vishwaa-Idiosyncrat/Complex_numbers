@@ -1,13 +1,54 @@
 /***********************************************************************************/
 /* createEvents.js */
 
+createVector.prototype.setSelected = function(state) {
+  // Only change if state is actually different
+  if (this.isSelected !== state) {
+    this.isSelected = state;
+    this.vector_line.styles({
+      "stroke-width": state ? 0.6 * screen_size : 0.4 * screen_size
+    });
+    this.vector_head_circle.styles({
+      "r": state ? 0.6 * screen_size : 0.4 * screen_size
+    });
+    
+    console.log(`Vector ${this.vectorID} selection set to: ${state}`);
+  }
+  return this;
+};
+
 createVector.prototype.createEvents = function() {
 
   this.temp_pos = {};
+  const self = this;
 
   /*************************** Circle Events ***************************/
   const drag_circle = d3.drag();
   this.circle.call(drag_circle);
+
+  /*************************** Click handler for selection ***********/ 
+// In createEvents.js - Update the click handler
+
+// Update click handler
+this.vector_line.on("click", function() {
+  d3.event.stopPropagation();
+  d3.event.preventDefault();
+  
+  const wasSelected = self.isSelected;
+  
+  // If not holding Ctrl/Cmd, deselect all others first
+  if (!d3.event.ctrlKey && !d3.event.metaKey) {
+    screen_svg.vector_list.forEach(v => {
+      if (v !== self) v.setSelected(false);
+    });
+  }
+  
+  // Toggle this vector's selection
+  self.setSelected(!wasSelected);
+  
+  // Update last interacted vector
+  screen_svg.lastInteractedVector = self;
+});
 
   drag_circle.on("start", function(d) {
     if (d.manipulationMode === false && d3.event.sourceEvent.type === "touchstart") {

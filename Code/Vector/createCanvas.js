@@ -136,6 +136,22 @@ function createCanvas(element) {
     }
   });  
 
+  // In createCanvas.js, add:
+screen_svg.selection = {
+  current: null,
+  select: function(vector) {
+    if (this.current) this.current.deselect();
+    this.current = vector;
+    vector.select();
+  },
+  deselect: function() {
+    if (this.current) this.current.deselect();
+    this.current = null;
+  }
+};
+
+
+
 
   /*************************** Flip Button ***********************/ 
 
@@ -156,14 +172,33 @@ function createCanvas(element) {
   })
 
   flip_icon.on("click", function() {
-    if (screen_svg.activeVector) {
-      screen_svg.activeVector.flip_vector();
+    // Get the active vector or fall back to checking all selections
+    const vectorToFlip = screen_svg.activeVector || 
+                        screen_svg.vector_list.find(v => v.isSelected);
+    
+    if (vectorToFlip) {
+      console.log("Flipping vector", vectorToFlip.vectorID, 
+                 "Selection state:", vectorToFlip.isSelected);
+      vectorToFlip.flip_vector();
     } else {
-      console.log("No active vector selected");
+      // Enhanced debug output
+      console.warn("No vector selected. Current state:", {
+        activeVector: screen_svg.activeVector ? screen_svg.activeVector.vectorID : null,
+        allVectors: screen_svg.vector_list.map(v => ({
+          id: v.vectorID,
+          selected: v.isSelected,
+          element: v.vector_line.node()
+        }))
+      });
+      
+      // Visual feedback
+      d3.select(this).transition()
+        .styles({"stroke": "red"})
+        .transition()
+        .styles({"stroke": "gray"});
     }
-  });  
-
-
+  });
+  
   /*************************** Footer ***************************/
 
   var temp_text = screen_svg.canvas.append("text")
