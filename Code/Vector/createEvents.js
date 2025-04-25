@@ -21,7 +21,29 @@ createVector.prototype.setSelected = function(state) {
       screen_svg.selected_vectors = screen_svg.selected_vectors.filter(v => v !== this);
     }
 
-    console.log(`Vector ${this.vectorID} selection set to: ${state}`);
+  }
+  return this;
+};
+
+createVector.prototype.setSelected = function(state) {
+  if (this.isSelected !== state) {
+    this.isSelected = state;
+    this.vector_line.styles({
+      "stroke-width": state ? 0.6 * screen_size : 0.4 * screen_size
+    });
+    this.vector_head_circle.styles({
+      "r": state ? 0.6 * screen_size : 0.4 * screen_size
+    });
+
+    if (state) {
+      // Add to selected list if not already there
+      if (!screen_svg.selected_vectors.includes(this)) {
+        screen_svg.selected_vectors.push(this);
+      }
+    } else {
+      // Remove from selected list
+      screen_svg.selected_vectors = screen_svg.selected_vectors.filter(v => v !== this);
+    }
   }
   return this;
 };

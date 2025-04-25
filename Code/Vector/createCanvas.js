@@ -138,16 +138,20 @@ function createCanvas(element) {
   });  
 
   // In createCanvas.js, add:
+// In createCanvas.js initialization
 screen_svg.selection = {
-  current: null,
-  select: function(vector) {
-    if (this.current) this.current.deselect();
-    this.current = vector;
-    vector.select();
+  getSelected: function() {
+    return screen_svg.vector_log.filter(v => v.isSelected);
   },
-  deselect: function() {
-    if (this.current) this.current.deselect();
-    this.current = null;
+  clearAll: function() {
+    screen_svg.vector_log.forEach(v => v.isSelected = false);
+  },
+  select: function(vector) {
+    this.clearAll();
+    vector.isSelected = true;
+  },
+  toggle: function(vector) {
+    vector.isSelected = !vector.isSelected;
   }
 };
 
@@ -172,31 +176,23 @@ screen_svg.selection = {
     d3.select(this).styles({ "fill-opacity": 0, "stroke": "gray" });
   })
 
+  flip_icon.classed("flip-button", true);
+
   flip_icon.on("click", function() {
-    // Get the active vector or fall back to checking all selections
-    const vectorToFlip = screen_svg.vector_list.find(v => v.isSelected);
+    const selected = screen_svg.selection.getSelected();
     
-    if (vectorToFlip) {
-      console.log("Flipping vector", vectorToFlip.vectorID, 
-                 "Selection state:", vectorToFlip.isSelected);
-      vectorToFlip.flip_vector();
-    } else {
-      // Enhanced debug output
-      console.warn("No vector selected. Current state:", {
-        activeVector: screen_svg.activeVector ? screen_svg.activeVector.vectorID : null,
-        allVectors: screen_svg.vector_list.map(v => ({
-          id: v.vectorID,
-          selected: v.isSelected,
-          element: v.vector_line.node()
-        }))
-      });
-      
-      // Visual feedback
+    if (selected.length === 0) {
+      // Visual feedback when no vectors are selected
       d3.select(this).transition()
-        .styles({"stroke": "red"})
+        .style("stroke", "red")
         .transition()
-        .styles({"stroke": "gray"});
+        .style("stroke", "gray");
+      return;
     }
+    
+    // Flip the last selected vector
+    const lastSelected = selected[selected.length - 1];
+    lastSelected.flip_vector();
   });
 
 //   // Add to createCanvas function initialization

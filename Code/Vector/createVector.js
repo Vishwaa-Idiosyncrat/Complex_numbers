@@ -650,6 +650,7 @@ createVector.prototype.conjugate = function() {
 /***********************************************************************************/
 /* Enhanced Dashed Representation with Endpoint Circle */
 
+// In createVector.js, modify the dashed_representation function
 createVector.prototype.dashed_representation = function(original_x, original_y) {
   // Remove any existing dashed representation
   this.container.selectAll(".dashed-line-group").remove();
@@ -673,13 +674,14 @@ createVector.prototype.dashed_representation = function(original_x, original_y) 
       y2: -original_y
     });
   
-  // Add solid circle at endpoint
+  // Add EMPTY circle at endpoint (changed fill-opacity to 0)
   dashedGroup.append("circle")
     .attr("class", "projection_" + this.vectorID)
     .styles({
-      "stroke": "none",
+      "stroke": this.vector_color,
+      "stroke-width": 0.2 * screen_size,
       "fill": this.vector_color,
-      "fill-opacity": 0.8
+      "fill-opacity": 0  // Changed from 0.8 to 0 to make it empty
     })
     .attrs({
       cx: original_x,
@@ -692,23 +694,14 @@ createVector.prototype.dashed_representation = function(original_x, original_y) 
 /* Enhanced Flip with Animation and Selection Awareness */
 
 createVector.prototype.flip_vector = function() {
-  // Only proceed if this vector is selected or is the only vector
-  if (!this.isSelected && screen_svg.vector_log.filter(v => v.isSelected).length > 0) {
-    return;
-  }
-  
-  // Store current values for animation
   const startAngle = this.angle_rad;
   const endAngle = (this.angle_rad + Math.PI) % (2 * Math.PI);
   const original_x = this.xComponent_length;
   const original_y = this.yComponent_length;
   
-  // Toggle flipped state
   this.isFlipped = !this.isFlipped;
   
-  // Create dashed representation of original position
   if (!this.isFlipped) {
-    // If unflipping, remove the dashed line
     this.container.selectAll(".dashed-line-group").remove();
   } else {
     this.dashed_representation(original_x, original_y);
