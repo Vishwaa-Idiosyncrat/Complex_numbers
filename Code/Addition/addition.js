@@ -1,10 +1,18 @@
-createVector.prototype.addVectors = function(){
+createVector.prototype.addVectors = function() {
   var object = new Object();
   if(navigator.vibrate){ navigator.vibrate([50]); }
 
   object.resultant = this.create_Resultant();
   object.vector_2 = this.create_Vector_2(object.resultant);
   object.vector_1 = this.create_Vector_1(object.resultant, object.vector_2);
+
+  // Preserve original vector if flipped
+  if (this.isFlipped) {
+    object.vector_1.lastFlippedAngle = this.lastFlippedAngle;
+    object.vector_1.showDashed = true;
+    object.vector_1.createDashedRepresentation(this.lastFlippedAngle, this.r);
+  }
+
 
   // if(object.vector_1.taskScreen == true){
   //   object.vector_1.screen_data.vectorID = vectorID;

@@ -19,6 +19,19 @@ function createVector(data){
   this.flipAnimationDuration = 500; // ms
   this.isSelected = false; 
 
+    // Add these properties
+    this.originalAngle = this.angle_rad;  // Store original angle
+    this.originalR = this.r;              // Store original magnitude
+    this.showDashed = false;              // Flag for showing dashed representation
+    this.dashedGroup = null;              // Reference to dashed line group
+
+    this.trueOriginalAngle = this.angle_rad;  // Always stores the very first angle
+  this.trueOriginalR = this.r;              // Always stores the very first magnitude
+  this.lastFlippedAngle = null;             // Stores angle when last flipped
+  this.showDashed = false;                  // Flag for showing dashed representation
+  this.dashedGroup = null;                  // Reference to dashed line group
+  
+
 
   // Example of an array-based approach:
   const complexSymbols = ["z", "w", "u", "v", "p", "q", "r", "s"];
@@ -186,6 +199,20 @@ createVector.prototype.update = function(){
 
   this.xComponent_coordinate = this.cx + this.r * Math.cos(this.angle_rad);
   this.yComponent_coordinate = this.cy - this.r * Math.sin(this.angle_rad);
+
+    // Update dashed representation if visible
+    if (this.showDashed && this.dashedGroup) {
+      const originalX = this.r * Math.cos(this.lastFlippedAngle);
+      const originalY = this.r * Math.sin(this.lastFlippedAngle);
+      
+      this.dashedGroup.select("line")
+        .attr("x2", originalX)
+        .attr("y2", -originalY);
+      
+      this.dashedGroup.select("circle")
+        .attr("cx", originalX)
+        .attr("cy", -originalY);
+    }
 
   /*************************** Container ***************************/
   this.container.attrs({ "transform": "translate(" + this.cx + "," + this.cy + ")" });
@@ -647,6 +674,56 @@ createVector.prototype.conjugate = function() {
   this.update();
 };
 
+
+createVector.prototype.createDashedRepresentation = function(angle, magnitude) {
+  // Remove any existing dashed representation
+  this.removeDashedRepresentation();
+  
+  // Create new dashed group
+  this.dashedGroup = this.container.append("g")
+    .classed("dashed-line-group", true)
+    .classed("original-vector", true);
+  
+  // Calculate original vector components
+  const originalX = magnitude * Math.cos(angle);
+  const originalY = magnitude * Math.sin(angle);
+  
+  // Create dashed line
+  this.dashedGroup.append("line")
+    .styles({
+      "stroke": this.vector_color,
+      "stroke-opacity": 0.6,
+      "stroke-width": 0.2 * screen_size,
+      "stroke-dasharray": "3,3"
+    })
+    .attrs({
+      x1: 0,
+      y1: 0,
+      x2: originalX,
+      y2: -originalY
+    });
+  
+  // Add endpoint circle
+  this.dashedGroup.append("circle")
+    .styles({
+      "stroke": this.vector_color,
+      "stroke-width": 0.2 * screen_size,
+      "fill": this.vector_color,
+      "fill-opacity": 0
+    })
+    .attrs({
+      cx: originalX,
+      cy: -originalY,
+      r: 0.4 * screen_size
+    });
+};
+
+createVector.prototype.removeDashedRepresentation = function() {
+  if (this.dashedGroup) {
+    this.dashedGroup.remove();
+    this.dashedGroup = null;
+  }
+};
 /***********************************************************************************/
 /* Enhanced Dashed Representation with Endpoint Circle */
 
@@ -694,41 +771,48 @@ createVector.prototype.dashed_representation = function(original_x, original_y) 
 /* Enhanced Flip with Animation and Selection Awareness */
 
 createVector.prototype.flip_vector = function() {
-  const startAngle = this.angle_rad;
-  const endAngle = (this.angle_rad + Math.PI) % (2 * Math.PI);
-  const original_x = this.xComponent_length;
-  const original_y = this.yComponent_length;
-  
+  // Store the first flip angle if this is the first flip
+  if (this.lastFlippedAngle === null) {
+    this.lastFlippedAngle = this.angle_rad;
+  }
+
+  // Toggle flipped state
   this.isFlipped = !this.isFlipped;
   
-  if (!this.isFlipped) {
-    this.container.selectAll(".dashed-line-group").remove();
-  } else {
-    this.dashed_representation(original_x, original_y);
-  }
+  // Calculate target angle
+  const targetAngle = this.isFlipped ? 
+    (this.lastFlippedAngle + Math.PI) % (2 * Math.PI) : 
+    this.lastFlippedAngle;
   
-  // Animate the flip
+  // Animate to target state
+  const startAngle = this.angle_rad;
   const startTime = Date.now();
+  
   const animateFlip = () => {
     const elapsed = Date.now() - startTime;
     const progress = Math.min(elapsed / this.flipAnimationDuration, 1);
-    
-    // Ease-in-out animation
     const easedProgress = 0.5 * (1 - Math.cos(progress * Math.PI));
     
     // Interpolate angle
-    this.angle_rad = startAngle + (endAngle - startAngle) * easedProgress;
+    this.angle_rad = startAngle + (targetAngle - startAngle) * easedProgress;
     
     // Update the vector
     this.update();
     
-    // Continue animation if not complete
+    // Manage dashed representation
+    if (this.isFlipped) {
+      this.showDashed = true;
+      this.createDashedRepresentation(this.lastFlippedAngle, this.r);
+    } else {
+      this.showDashed = false;
+      this.removeDashedRepresentation();
+    }
+    
     if (progress < 1) {
       requestAnimationFrame(animateFlip);
     }
   };
   
-  // Start animation
   requestAnimationFrame(animateFlip);
 };
 

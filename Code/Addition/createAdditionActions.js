@@ -1,11 +1,44 @@
 /********************************************************************************************************/
 // Recombine added vector From Componentised form
 
-var done_addition = function(){
+// var done_addition = function(){
+//   if(navigator.vibrate){ navigator.vibrate([50]); }
+//   var object = this, vector_1 = this.vector_1, vector_2 = this.vector_2, resultant = this.resultant;
+
+//   var temp_list = [ vector_1.container, vector_2.container, resultant.container, object.done_addition_button.image, resultant.movement_circle, resultant.centre_control_circle_1 ];
+//   for(i in temp_list){ temp_list[i].styles({ "display": "none" }); }
+
+//   var temp_vector = new createVector({
+//     parent: resultant.parent,
+//     cx: resultant.cx,
+//     cy: resultant.cy,
+//     r: resultant.r,
+//     angle_rad: resultant.angle_rad,
+//     manipulationPossible: true,
+//     manipulables: { r: true, angle: true, xComponent: true, yComponent: true },
+//     resolution_allowed: true,
+//     movementAllowed: true,
+//     vector_mode: "polar",               // "cartesian", "polar"
+//     cartesian_mode_controls: "polar",   // "cartesian", "polar"
+//     vectorID: resultant.vectorID,
+//     addedVectors: false
+//   })
+//   resultant.parent.vector_list.push(temp_vector);
+
+//   // if(vector_1.taskScreen == true){
+//   //   // vector_1.screen_data.vectorID = vectorID;
+//   //   vector_1.screen_data.vector_list.push(temp_vector);
+//   // }
+
+// }
+
+var done_addition = function() {
   if(navigator.vibrate){ navigator.vibrate([50]); }
   var object = this, vector_1 = this.vector_1, vector_2 = this.vector_2, resultant = this.resultant;
 
-  var temp_list = [ vector_1.container, vector_2.container, resultant.container, object.done_addition_button.image, resultant.movement_circle, resultant.centre_control_circle_1 ];
+  var temp_list = [vector_1.container, vector_2.container, resultant.container, 
+                  object.done_addition_button.image, resultant.movement_circle, 
+                  resultant.centre_control_circle_1];
   for(i in temp_list){ temp_list[i].styles({ "display": "none" }); }
 
   var temp_vector = new createVector({
@@ -18,18 +51,20 @@ var done_addition = function(){
     manipulables: { r: true, angle: true, xComponent: true, yComponent: true },
     resolution_allowed: true,
     movementAllowed: true,
-    vector_mode: "polar",               // "cartesian", "polar"
-    cartesian_mode_controls: "polar",   // "cartesian", "polar"
+    vector_mode: "polar",
+    cartesian_mode_controls: "polar",
     vectorID: resultant.vectorID,
     addedVectors: false
-  })
+  });
+
+  // Preserve original vector representation if any vector was flipped
+  if (vector_1.isFlipped) {
+    temp_vector.lastFlippedAngle = vector_1.lastFlippedAngle;
+    temp_vector.showDashed = true;
+    temp_vector.createDashedRepresentation(vector_1.lastFlippedAngle, vector_1.r);
+  }
+
   resultant.parent.vector_list.push(temp_vector);
-
-  // if(vector_1.taskScreen == true){
-  //   // vector_1.screen_data.vectorID = vectorID;
-  //   vector_1.screen_data.vector_list.push(temp_vector);
-  // }
-
 }
 
 /********************************************************************************************************/
