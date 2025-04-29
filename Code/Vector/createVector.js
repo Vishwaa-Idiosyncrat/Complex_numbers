@@ -771,20 +771,37 @@ createVector.prototype.dashed_representation = function(original_x, original_y) 
 /* Enhanced Flip with Animation and Selection Awareness */
 
 createVector.prototype.flip_vector = function() {
-  // Store the first flip angle if this is the first flip
-  if (this.lastFlippedAngle === null) {
+  // First update the vector's current state
+  this.update();
+
+  // Case 1: If vector is flipped AND its angle doesn't match the expected flipped angle
+  // (meaning someone manually rotated it while flipped)
+  if (this.isFlipped && !this.anglesEqual(this.angle_rad, (this.lastFlippedAngle + Math.PI) % (2 * Math.PI))) {
+    // Automatically unflip it using the current angle as new reference
+    this.isFlipped = false;
     this.lastFlippedAngle = this.angle_rad;
+    this.showDashed = false;
+    this.removeDashedRepresentation();
+    this.update();
+    return; // Exit early since we just unflipped it
+  }
+
+  // Case 2: If vector is unflipped AND angle changed since last flip
+  if (!this.isFlipped && !this.anglesEqual(this.lastFlippedAngle, this.angle_rad)) {
+    this.lastFlippedAngle = this.angle_rad;
+    this.showDashed = false;
+    this.removeDashedRepresentation();
   }
 
   // Toggle flipped state
   this.isFlipped = !this.isFlipped;
-  
-  // Calculate target angle
+
+  // Calculate target angle (either flipped or original)
   const targetAngle = this.isFlipped ? 
     (this.lastFlippedAngle + Math.PI) % (2 * Math.PI) : 
     this.lastFlippedAngle;
-  
-  // Animate to target state
+
+  // Animate the flip
   const startAngle = this.angle_rad;
   const startTime = Date.now();
   
@@ -793,10 +810,8 @@ createVector.prototype.flip_vector = function() {
     const progress = Math.min(elapsed / this.flipAnimationDuration, 1);
     const easedProgress = 0.5 * (1 - Math.cos(progress * Math.PI));
     
-    // Interpolate angle
+    // Smoothly interpolate to target angle
     this.angle_rad = startAngle + (targetAngle - startAngle) * easedProgress;
-    
-    // Update the vector
     this.update();
     
     // Manage dashed representation
@@ -815,4 +830,11 @@ createVector.prototype.flip_vector = function() {
   
   requestAnimationFrame(animateFlip);
 };
+
+// Helper function to compare angles accounting for floating point precision
+createVector.prototype.anglesEqual = function(a, b) {
+  return Math.abs((a - b + Math.PI) % (2 * Math.PI) - Math.PI) < 0.001;
+};
+
+
 
