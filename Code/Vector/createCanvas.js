@@ -101,10 +101,42 @@ function createCanvas(element) {
       window.open("https://youtu.be/RR1WX6o5hfM", "_default");
     })
 
+
+
+// In createCanvas.js initialization
+screen_svg.selection = {
+  selectedVectors: [], // Tracks vectors in selection order
+  getSelected: function() {
+    return this.selectedVectors.slice(); // Return a copy
+  },
+  clearAll: function() {
+    this.selectedVectors.forEach(v => v.isSelected = false);
+    this.selectedVectors = [];
+  },
+  select: function(vector) {
+    this.clearAll();
+    vector.isSelected = true;
+    this.selectedVectors.push(vector);
+  },
+  toggle: function(vector) {
+    const index = this.selectedVectors.indexOf(vector);
+    
+    if (index === -1) {
+      // Add to selectedVectors if not already present
+      this.selectedVectors.push(vector);
+      vector.isSelected = true;
+    } else {
+      // Remove from selectedVectors if deselected
+      this.selectedVectors.splice(index, 1);
+      vector.isSelected = false;
+    }
+  }
+};
+
   /*************************** NEW: S–x axis Button (Conjugate) ***************************/
   let conj_icon_size = 3 * screen_dpi;
   // Position it below the help icon, for example
-  temp_pos = { x: 0.92 * innerWidth, y: 19 * screen_size };
+  temp_pos = { x: 0.92 * innerWidth, y: 25 * screen_size };
 
   // If you have a custom icon, reference it here. For now, let's assume "conjugate.svg"
   screen_svg.canvas.append("image")
@@ -129,38 +161,27 @@ function createCanvas(element) {
   });
 
   // On click, call `conjugate()` for each vector
-  conj_icon_circle.on("click", function() {
-    if (screen_svg.activeVector) {
-      screen_svg.activeVector.conjugate();
-    } else {
-      console.log("No active vector selected");
+conj_icon_circle.on("click", function() {
+
+  const selected = screen_svg.selection.getSelected();
+    
+    if (selected.length === 0) {
+      d3.select(this).transition()
+        .style("stroke", "red")
+        .transition()
+        .style("stroke", "gray");
+      return;
     }
-  });  
-
-  // In createCanvas.js, add:
-// In createCanvas.js initialization
-screen_svg.selection = {
-  getSelected: function() {
-    return screen_svg.vector_log.filter(v => v.isSelected);
-  },
-  clearAll: function() {
-    screen_svg.vector_log.forEach(v => v.isSelected = false);
-  },
-  select: function(vector) {
-    this.clearAll();
-    vector.isSelected = true;
-  },
-  toggle: function(vector) {
-    vector.isSelected = !vector.isSelected;
-  }
-};
-
-
+    
+    // Last selected is the most recent
+    const lastSelected = selected[selected.length - 1];
+    lastSelected.conjugate();
+});  
 
 
   /*************************** Flip Button ***********************/ 
 
-  temp_pos = { x: 0.92 * innerWidth, y: 12 * screen_size };
+  temp_pos = { x: 0.92 * innerWidth, y: 3 * screen_size };
   screen_svg.canvas.append("image")
     .attrs({ x: temp_pos.x - 0.5 * refresh_icon_size, y: temp_pos.y + 10 * refresh_icon_size, width: refresh_icon_size, height: refresh_icon_size, "xlink:href": "../../Images/equation.png" });
 
@@ -182,7 +203,6 @@ screen_svg.selection = {
     const selected = screen_svg.selection.getSelected();
     
     if (selected.length === 0) {
-      // Visual feedback when no vectors are selected
       d3.select(this).transition()
         .style("stroke", "red")
         .transition()
@@ -190,72 +210,11 @@ screen_svg.selection = {
       return;
     }
     
-    // Flip the last selected vector
+    // Last selected is the most recent
     const lastSelected = selected[selected.length - 1];
     lastSelected.flip_vector();
   });
 
-//   // Add to createCanvas function initialization
-// screen_svg.lastInteractedVector = null;
-
-// // Update flip button handler
-// flip_icon.on("click", function() {
-//   // Get all truly selected vectors
-//   const selectedVectors = screen_svg.vector_list.filter(v => v.isSelected === true);
-  
-//   console.log("Flip clicked. Selected vectors:", 
-//     selectedVectors.map(v => v.vectorID),
-//     "Last interacted:", 
-//     screen_svg.lastInteractedVector ? screen_svg.lastInteractedVector.vectorID : null
-//   );
-
-//   // Case 1: Exactly one vector selected
-//   if (selectedVectors.length === 1) {
-//     selectedVectors[0].flip_vector();
-//     return;
-//   }
-  
-//   // Case 2: No vectors selected but there is a last interacted vector
-//   if (selectedVectors.length === 0 && screen_svg.lastInteractedVector) {
-//     console.warn("No selected vectors, but last interacted was vector", 
-//       screen_svg.lastInteractedVector.vectorID);
-    
-//     // Visual feedback - pulse the last interacted vector
-//     screen_svg.lastInteractedVector.vector_line
-//       .transition().duration(200)
-//       .styles({"stroke": "red"})
-//       .transition().duration(200)
-//       .styles({"stroke": screen_svg.lastInteractedVector.vector_color});
-    
-//     return;
-//   }
-  
-//   // Case 3: Multiple vectors selected
-//   if (selectedVectors.length > 1) {
-//     console.warn("Multiple vectors selected - please select only one to flip");
-    
-//     // Visual feedback - pulse all selected vectors
-//     selectedVectors.forEach(v => {
-//       v.vector_line
-//         .transition().duration(200)
-//         .styles({"stroke": "red"})
-//         .transition().duration(200)
-//         .styles({"stroke": v.vector_color});
-//     });
-    
-//     return;
-//   }
-  
-//   // Case 4: No vectors to flip
-//   console.warn("No vector selected - please select a vector first");
-  
-//   // Visual feedback on flip button
-//   d3.select(this)
-//     .transition().duration(200)
-//     .styles({"stroke": "red", "stroke-width": "2px"})
-//     .transition().duration(200)
-//     .styles({"stroke": "gray", "stroke-width": "0.2px"});
-// });
   
   /*************************** Footer ***************************/
 

@@ -668,9 +668,8 @@ createVector.prototype.setup_view_text = function(){
 /***********************************************************************************/
 /* Setup conjugate */
 createVector.prototype.conjugate = function() {
-  // Reflect the vector across the x-axis by flipping its angle
+  // Simply reflect across x-axis (negate angle)
   this.angle_rad = -this.angle_rad;
-  // Re-draw the vector
   this.update();
 };
 

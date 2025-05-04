@@ -13,11 +13,6 @@ createVector.prototype.addVectors = function() {
     object.vector_1.createDashedRepresentation(this.lastFlippedAngle, this.r);
   }
 
-
-  // if(object.vector_1.taskScreen == true){
-  //   object.vector_1.screen_data.vectorID = vectorID;
-  // }
-
   object.resultant.object = object;
   object.vector_1.object = object;
   object.vector_2.object = object;
@@ -226,6 +221,11 @@ createVector.prototype.create_Vector_2 = function(resultant){
     screen_data: data.screen_data
     // resultant: resultant
   })
+  if (data.isFlipped) {
+    temp_vector.lastFlippedAngle = data.lastFlippedAngle;
+    temp_vector.showDashed = true;
+    temp_vector.createDashedRepresentation(data.lastFlippedAngle, data.r);
+  }
   temp_vector.vector_line.attrs({ "marker-end": "url(#arrow_component_" +temp_vector.vectorID+ ")" });
   return(temp_vector);
 }
@@ -253,6 +253,12 @@ createVector.prototype.create_Vector_1 = function(resultant, vector_2){
     // resultant: resultant,
     // vector_2: vector_2
   })
+  if (this.isFlipped) {
+    temp_vector.lastFlippedAngle = this.lastFlippedAngle;
+    temp_vector.showDashed = true;
+    temp_vector.createDashedRepresentation(this.lastFlippedAngle, this.r);
+  }
+
   temp_vector.vector_line.attrs({ "marker-end": "url(#arrow_component_" +temp_vector.vectorID+ ")" });
   return(temp_vector);
 }

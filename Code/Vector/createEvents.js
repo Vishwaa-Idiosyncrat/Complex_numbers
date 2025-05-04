@@ -1,54 +1,6 @@
 /***********************************************************************************/
 /* createEvents.js */
 
-createVector.prototype.setSelected = function(state) {
-  if (this.isSelected !== state) {
-    this.isSelected = state;
-    this.vector_line.styles({
-      "stroke-width": state ? 0.6 * screen_size : 0.4 * screen_size
-    });
-    this.vector_head_circle.styles({
-      "r": state ? 0.6 * screen_size : 0.4 * screen_size
-    });
-
-    if (state) {
-      // Add to selected list if not already there
-      if (!screen_svg.selected_vectors.includes(this)) {
-        screen_svg.selected_vectors.push(this);
-      }
-    } else {
-      // Remove from selected list
-      screen_svg.selected_vectors = screen_svg.selected_vectors.filter(v => v !== this);
-    }
-
-  }
-  return this;
-};
-
-createVector.prototype.setSelected = function(state) {
-  if (this.isSelected !== state) {
-    this.isSelected = state;
-    this.vector_line.styles({
-      "stroke-width": state ? 0.6 * screen_size : 0.4 * screen_size
-    });
-    this.vector_head_circle.styles({
-      "r": state ? 0.6 * screen_size : 0.4 * screen_size
-    });
-
-    if (state) {
-      // Add to selected list if not already there
-      if (!screen_svg.selected_vectors.includes(this)) {
-        screen_svg.selected_vectors.push(this);
-      }
-    } else {
-      // Remove from selected list
-      screen_svg.selected_vectors = screen_svg.selected_vectors.filter(v => v !== this);
-    }
-  }
-  return this;
-};
-
-
 createVector.prototype.createEvents = function() {
 
   this.temp_pos = {};
@@ -58,26 +10,6 @@ createVector.prototype.createEvents = function() {
   const drag_circle = d3.drag();
   this.circle.call(drag_circle);
 
-  /*************************** Click handler for selection ***********/ 
-// In createEvents.js - Update the click handler
-
-// Update click handler
-this.vector_line.on("click", function() {
-  d3.event.stopPropagation();
-  d3.event.preventDefault();
-  
-  
-  // If not holding Ctrl/Cmd, deselect all others first
-  if (!d3.event.ctrlKey && !d3.event.metaKey) {
-    screen_svg.vector_list.forEach(v => {
-      if (v !== self) v.setSelected(false);
-    });
-  }
-  self.setSelected(!self.isSelected);
-  
-  // Update last interacted vector
-  screen_svg.lastInteractedVector = self;
-});
 
   drag_circle.on("start", function(d) {
     if (d.manipulationMode === false && d3.event.sourceEvent.type === "touchstart") {
@@ -195,8 +127,11 @@ this.vector_line.on("click", function() {
   /*************************** Centre Circle Events ***************************/
   this.centre_control_circle.on("touchstart", function(d) {
     screen_svg.activeVector = d;
-    d.isSelected = !d.isSelected;
+    
+    screen_svg.selection.toggle(d); // <-- This updates selectedVectors
+    
     d3.select(this).attr("class", "visible");
+
     if (d.manipulationMode === false) {
       this.timer = setTimeout(function() {
         d.dispatch.call("long_press", this, d);
